@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Paleta Codegurex / Gurex
+ * - Primary: azul cobalt (#2563eb)
+ * - Accent terminal: verde codigo (#22c55e)
+ * - Fondo claro, tipo SaaS
+ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --primary-hover: #1d4ed8;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --ring: #2563eb;
+  --success: #22c55e;
+  --success-foreground: #064e3b;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --code: #16a34a;
+}
+
+.dark {
+  --background: #0b1220;
+  --foreground: #f8fafc;
+  --card: #111a2e;
+  --card-foreground: #f8fafc;
+  --muted: #16213a;
+  --muted-foreground: #94a3b8;
+  --border: #1f2a44;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --primary-hover: #2563eb;
+  --accent: #16213a;
+  --accent-foreground: #f8fafc;
+  --ring: #3b82f6;
+  --success: #22c55e;
+  --success-foreground: #bbf7d0;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --code: #22c55e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-code: var(--code);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
