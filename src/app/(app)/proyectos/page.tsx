@@ -1,12 +1,12 @@
 import { Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select } from "@/components/ui/select";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { PROJECT_STATUS_OPTIONS, statusMeta } from "@/lib/projects";
+import { statusMeta } from "@/lib/projects";
 import { ProjectForm } from "./project-form";
-import { deleteProject, updateProjectStatus } from "./actions";
+import { StatusSelect } from "./status-select";
+import { deleteProject } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -81,21 +81,11 @@ export default async function ProyectosPage() {
                           : p.client.name}
                       </td>
                       <td className="px-5 py-3">
-                        <form action={updateProjectStatus}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <Select
-                            name="status"
-                            defaultValue={p.status}
-                            onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                            className={`h-7 w-auto py-0 text-xs font-medium ${meta.className}`}
-                          >
-                            {PROJECT_STATUS_OPTIONS.map((s) => (
-                              <option key={s.value} value={s.value}>
-                                {s.label}
-                              </option>
-                            ))}
-                          </Select>
-                        </form>
+                        <StatusSelect
+                          projectId={p.id}
+                          current={p.status}
+                          className={meta.className}
+                        />
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
