@@ -59,8 +59,7 @@ export async function createIncome(formData: FormData) {
     },
   });
 
-  revalidatePath("/ingresos");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 export async function deleteIncome(formData: FormData) {
@@ -73,6 +72,5 @@ export async function deleteIncome(formData: FormData) {
     where: { id, ownerId: user.id },
   });
 
-  revalidatePath("/ingresos");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }

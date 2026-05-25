@@ -49,8 +49,7 @@ export async function createExpense(formData: FormData) {
     },
   });
 
-  revalidatePath("/gastos");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 export async function deleteExpense(formData: FormData) {
@@ -62,6 +61,5 @@ export async function deleteExpense(formData: FormData) {
     where: { id, ownerId: user.id },
   });
 
-  revalidatePath("/gastos");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }

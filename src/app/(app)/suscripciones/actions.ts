@@ -49,8 +49,7 @@ export async function createSubscription(formData: FormData) {
     },
   });
 
-  revalidatePath("/suscripciones");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 export async function deleteSubscription(formData: FormData) {
@@ -58,8 +57,7 @@ export async function deleteSubscription(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await prisma.subscription.deleteMany({ where: { id, ownerId: user.id } });
-  revalidatePath("/suscripciones");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 export async function toggleSubscriptionStatus(formData: FormData) {
@@ -73,8 +71,7 @@ export async function toggleSubscriptionStatus(formData: FormData) {
     data: { status: newStatus as SubscriptionStatus },
   });
 
-  revalidatePath("/suscripciones");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 /**
@@ -112,6 +109,5 @@ export async function rolloverSubscription(formData: FormData) {
     data: { nextRenewal: next },
   });
 
-  revalidatePath("/suscripciones");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }

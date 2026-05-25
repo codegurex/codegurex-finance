@@ -24,7 +24,6 @@ export default async function DashboardPage() {
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   // Inicio de hace 5 meses (para incluir el actual = 6 meses)
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
@@ -33,10 +32,10 @@ export default async function DashboardPage() {
   renewalCutoff.setDate(renewalCutoff.getDate() + 14);
 
   const [
+    incomeTotal,
+    expensesTotal,
     incomeMonth,
     expensesMonth,
-    incomePrev,
-    expensesPrev,
     recent,
     incomeLastSix,
     expensesLastSix,
@@ -44,6 +43,16 @@ export default async function DashboardPage() {
     activeSubs,
     upcomingRenewals,
   ] = await Promise.all([
+    // Totales acumulados (todo el historico del usuario).
+    prisma.income.aggregate({
+      _sum: { amount: true },
+      where: { ownerId: user.id },
+    }),
+    prisma.expense.aggregate({
+      _sum: { amount: true },
+      where: { ownerId: user.id },
+    }),
+    // Mes en curso (para mostrar como sub-texto).
     prisma.income.aggregate({
       _sum: { amount: true },
       where: { ownerId: user.id, date: { gte: monthStart } },
@@ -51,14 +60,6 @@ export default async function DashboardPage() {
     prisma.expense.aggregate({
       _sum: { amount: true },
       where: { ownerId: user.id, date: { gte: monthStart } },
-    }),
-    prisma.income.aggregate({
-      _sum: { amount: true },
-      where: { ownerId: user.id, date: { gte: prevMonthStart, lt: monthStart } },
-    }),
-    prisma.expense.aggregate({
-      _sum: { amount: true },
-      where: { ownerId: user.id, date: { gte: prevMonthStart, lt: monthStart } },
     }),
     prisma.income.findMany({
       where: { ownerId: user.id },
@@ -95,10 +96,10 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const income = Number(incomeMonth._sum.amount ?? 0);
-  const expenses = Number(expensesMonth._sum.amount ?? 0);
-  const prevIncome = Number(incomePrev._sum.amount ?? 0);
-  const prevExpenses = Number(expensesPrev._sum.amount ?? 0);
+  const income = Number(incomeTotal._sum.amount ?? 0);
+  const expenses = Number(expensesTotal._sum.amount ?? 0);
+  const incomeThisMonth = Number(incomeMonth._sum.amount ?? 0);
+  const expensesThisMonth = Number(expensesMonth._sum.amount ?? 0);
   const balance = income - expenses;
   const monthlyBurn = activeSubs.reduce(
     (sum, s) => sum + toMonthly(Number(s.amount), s.frequency),
@@ -145,23 +146,44 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Resumen financiero del mes en curso.</p>
+        <p className="text-sm text-muted-foreground">
+          Totales acumulados · debajo de cada card, lo que llevas este mes
+        </p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Ingresos"
+          label="Ingresos totales"
           value={formatCurrency(income)}
-          delta={deltaFor(income, prevIncome, true)}
+          delta={
+            incomeThisMonth > 0
+              ? { value: `+${formatCurrency(incomeThisMonth)} este mes`, positive: true }
+              : undefined
+          }
           icon={TrendingUp}
         />
         <StatCard
-          label="Gastos"
+          label="Gastos totales"
           value={formatCurrency(expenses)}
-          delta={deltaFor(expenses, prevExpenses, false)}
+          delta={
+            expensesThisMonth > 0
+              ? { value: `+${formatCurrency(expensesThisMonth)} este mes`, positive: false }
+              : undefined
+          }
           icon={TrendingDown}
         />
-        <StatCard label="Balance" value={formatCurrency(balance)} icon={Wallet} />
+        <StatCard
+          label="Balance"
+          value={formatCurrency(balance)}
+          delta={
+            balance !== 0
+              ? balance > 0
+                ? { value: "positivo", positive: true }
+                : { value: "en negativo", positive: false }
+              : undefined
+          }
+          icon={Wallet}
+        />
         <StatCard
           label="Burn mensual (subs)"
           value={formatCurrency(monthlyBurn)}
@@ -232,16 +254,4 @@ export default async function DashboardPage() {
 
 function monthKey(d: Date) {
   return `${d.getFullYear()}-${d.getMonth()}`;
-}
-
-function deltaFor(
-  current: number,
-  prev: number,
-  higherIsBetter: boolean,
-): { value: string; positive: boolean } | undefined {
-  if (prev === 0) return undefined;
-  const pct = ((current - prev) / prev) * 100;
-  const sign = pct >= 0 ? "+" : "";
-  const positive = higherIsBetter ? pct >= 0 : pct < 0;
-  return { value: `${sign}${pct.toFixed(0)}% vs mes anterior`, positive };
 }
