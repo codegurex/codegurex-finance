@@ -163,17 +163,7 @@ export default async function DashboardPage() {
           icon={TrendingUp}
         />
         <StatCard
-          label="Gastos totales"
-          value={formatCurrency(expenses)}
-          delta={
-            expensesThisMonth > 0
-              ? { value: `+${formatCurrency(expensesThisMonth)} este mes`, positive: false }
-              : undefined
-          }
-          icon={TrendingDown}
-        />
-        <StatCard
-          label="Balance"
+          label="Saldo"
           value={formatCurrency(balance)}
           delta={
             balance !== 0
@@ -183,6 +173,16 @@ export default async function DashboardPage() {
               : undefined
           }
           icon={Wallet}
+        />
+        <StatCard
+          label="Gastos totales"
+          value={formatCurrency(expenses)}
+          delta={
+            expensesThisMonth > 0
+              ? { value: `+${formatCurrency(expensesThisMonth)} este mes`, positive: false }
+              : undefined
+          }
+          icon={TrendingDown}
         />
         <StatCard
           label="Burn mensual (subs)"

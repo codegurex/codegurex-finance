@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { PAYMENT_METHODS } from "@/lib/categories";
 import { IncomeForm } from "./income-form";
 import { deleteIncome } from "./actions";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ function methodLabel(value: string) {
 export default async function IngresosPage() {
   const user = await requireUser();
 
-  const [income, clients] = await Promise.all([
+  const [income, clients, expensesAgg] = await Promise.all([
     prisma.income.findMany({
       where: { ownerId: user.id },
       orderBy: { date: "desc" },
@@ -28,18 +29,41 @@ export default async function IngresosPage() {
       orderBy: { name: "asc" },
       select: { id: true, name: true, company: true },
     }),
+    prisma.expense.aggregate({
+      _sum: { amount: true },
+      where: { ownerId: user.id },
+    }),
   ]);
 
   const total = income.reduce((sum, i) => sum + Number(i.amount), 0);
+  const totalExpenses = Number(expensesAgg._sum.amount ?? 0);
+  const saldo = total - totalExpenses;
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Ingresos</h1>
-          <p className="text-sm text-muted-foreground">
-            {income.length} registros · Total {formatCurrency(total)}
-          </p>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Ingresos</h1>
+            <p className="text-sm text-muted-foreground">
+              {income.length} registros · Total {formatCurrency(total)}
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm">
+            <Wallet size={14} className="text-muted-foreground" />
+            <span className="text-muted-foreground">Saldo:</span>
+            <span
+              className={cn(
+                "font-semibold",
+                saldo >= 0 ? "text-green-600" : "text-red-600",
+              )}
+            >
+              {formatCurrency(saldo)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              (ingresos − gastos)
+            </span>
+          </div>
         </div>
         <IncomeForm clients={clients} />
       </header>
