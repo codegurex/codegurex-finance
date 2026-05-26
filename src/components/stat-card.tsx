@@ -18,11 +18,13 @@ export function StatCard({ label, value, delta, icon: Icon }: StatCardProps) {
         </span>
         {Icon && <Icon size={16} className="text-muted-foreground" />}
       </div>
-      <div className="mt-3 text-2xl font-semibold tracking-tight">{value}</div>
+      <div className="mt-3 truncate text-xl font-semibold tracking-tight sm:text-2xl">
+        {value}
+      </div>
       {delta && (
         <div
           className={cn(
-            "mt-1 text-xs",
+            "mt-1 truncate text-xs",
             delta.positive ? "text-green-600" : "text-red-600",
           )}
         >
