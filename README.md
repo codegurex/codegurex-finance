@@ -12,7 +12,6 @@
 
 ## Demo
 
-**Live:** _añade aquí la URL de tu deploy en Vercel cuando esté lista_
 
 Cada usuario crea su propia cuenta — los datos se aíslan a nivel de fila por `ownerId`, así que cada quien ve solo lo suyo.
 
