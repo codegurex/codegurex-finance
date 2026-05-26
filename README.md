@@ -158,16 +158,6 @@ Configurado para Vercel sin tocar nada. Variables de entorno necesarias en el da
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `DATABASE_URL` (usa el **Transaction Pooler** de Supabase en puerto `6543` con `?pgbouncer=true&connection_limit=1`)
 
-## Roadmap
-
-- [ ] Facturación electrónica (SRI Ecuador)
-- [ ] Edición inline de ingresos / gastos / clientes
-- [ ] Exportación CSV / PDF
-- [ ] PWA instalable
-- [ ] Modo dark con toggle
-- [ ] Roles (admin / contador / empleado)
-- [ ] Integración con Stripe para cobros
-
 ## Autor
 
 **Codegurex** — [@codegurex](https://github.com/codegurex)
