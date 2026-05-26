@@ -79,16 +79,30 @@ export default async function ClientesPage() {
                         {formatDate(c.createdAt)}
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <form action={deleteClientRecord}>
-                          <input type="hidden" name="id" value={c.id} />
-                          <button
-                            type="submit"
-                            className="text-muted-foreground hover:text-red-500"
-                            aria-label="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </form>
+                        <div className="flex items-center justify-end gap-1">
+                          <ClientForm
+                            editing={{
+                              id: c.id,
+                              name: c.name,
+                              email: c.email,
+                              phone: c.phone,
+                              company: c.company,
+                              country: c.country,
+                              status: c.status,
+                              notes: c.notes,
+                            }}
+                          />
+                          <form action={deleteClientRecord}>
+                            <input type="hidden" name="id" value={c.id} />
+                            <button
+                              type="submit"
+                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-red-600"
+                              aria-label="Eliminar"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   );

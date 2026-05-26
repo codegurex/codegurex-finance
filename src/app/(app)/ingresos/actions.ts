@@ -62,6 +62,47 @@ export async function createIncome(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateIncome(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("id") ?? "");
+  if (!id) throw new Error("ID requerido");
+
+  const amount = Number(formData.get("amount") ?? "");
+  const category = String(formData.get("category") ?? "").trim();
+  const paymentMethod = String(formData.get("paymentMethod") ?? "TRANSFER");
+  const dateRaw = String(formData.get("date") ?? "");
+  const notes = String(formData.get("notes") ?? "").trim();
+  const clientIdRaw = String(formData.get("clientId") ?? "").trim();
+
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error("Monto invalido");
+  if (!category) throw new Error("Categoria requerida");
+  const method: Method = isMethod(paymentMethod) ? paymentMethod : "TRANSFER";
+  const date = dateRaw ? new Date(dateRaw) : new Date();
+
+  let clientId: string | null = null;
+  if (clientIdRaw) {
+    const owned = await prisma.client.findFirst({
+      where: { id: clientIdRaw, ownerId: user.id },
+      select: { id: true },
+    });
+    if (owned) clientId = owned.id;
+  }
+
+  await prisma.income.updateMany({
+    where: { id, ownerId: user.id },
+    data: {
+      amount,
+      category,
+      paymentMethod: method as PaymentMethod,
+      date,
+      notes: notes || null,
+      clientId,
+    },
+  });
+
+  revalidatePath("/", "layout");
+}
+
 export async function deleteIncome(formData: FormData) {
   const user = await requireUser();
   const id = String(formData.get("id") ?? "");

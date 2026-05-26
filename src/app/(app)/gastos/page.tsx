@@ -76,16 +76,30 @@ export default async function GastosPage() {
                       {formatCurrency(Number(row.amount))}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <form action={deleteExpense}>
-                        <input type="hidden" name="id" value={row.id} />
-                        <button
-                          type="submit"
-                          className="text-muted-foreground hover:text-red-500"
-                          aria-label="Eliminar"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </form>
+                      <div className="flex items-center justify-end gap-1">
+                        <ExpenseForm
+                          editing={{
+                            id: row.id,
+                            description: row.description,
+                            amount: Number(row.amount),
+                            category: row.category,
+                            paymentMethod: row.paymentMethod,
+                            provider: row.provider,
+                            date: row.date,
+                            notes: row.notes,
+                          }}
+                        />
+                        <form action={deleteExpense}>
+                          <input type="hidden" name="id" value={row.id} />
+                          <button
+                            type="submit"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-red-600"
+                            aria-label="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 ))}

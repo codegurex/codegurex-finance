@@ -119,16 +119,30 @@ export default async function IngresosPage() {
                       {formatCurrency(Number(row.amount))}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <form action={deleteIncome}>
-                        <input type="hidden" name="id" value={row.id} />
-                        <button
-                          type="submit"
-                          className="text-muted-foreground hover:text-red-500"
-                          aria-label="Eliminar"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </form>
+                      <div className="flex items-center justify-end gap-1">
+                        <IncomeForm
+                          clients={clients}
+                          editing={{
+                            id: row.id,
+                            amount: Number(row.amount),
+                            category: row.category,
+                            paymentMethod: row.paymentMethod,
+                            date: row.date,
+                            notes: row.notes,
+                            clientId: row.clientId,
+                          }}
+                        />
+                        <form action={deleteIncome}>
+                          <input type="hidden" name="id" value={row.id} />
+                          <button
+                            type="submit"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-red-600"
+                            aria-label="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 ))}

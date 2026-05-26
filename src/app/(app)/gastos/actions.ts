@@ -52,6 +52,41 @@ export async function createExpense(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateExpense(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("id") ?? "");
+  if (!id) throw new Error("ID requerido");
+
+  const description = String(formData.get("description") ?? "").trim();
+  const amount = Number(formData.get("amount") ?? "");
+  const category = String(formData.get("category") ?? "").trim();
+  const paymentMethod = String(formData.get("paymentMethod") ?? "TRANSFER");
+  const provider = String(formData.get("provider") ?? "").trim();
+  const dateRaw = String(formData.get("date") ?? "");
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  if (!description) throw new Error("Descripcion requerida");
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error("Monto invalido");
+  if (!category) throw new Error("Categoria requerida");
+  const method: Method = isMethod(paymentMethod) ? paymentMethod : "TRANSFER";
+  const date = dateRaw ? new Date(dateRaw) : new Date();
+
+  await prisma.expense.updateMany({
+    where: { id, ownerId: user.id },
+    data: {
+      description,
+      amount,
+      category,
+      paymentMethod: method as PaymentMethod,
+      provider: provider || null,
+      date,
+      notes: notes || null,
+    },
+  });
+
+  revalidatePath("/", "layout");
+}
+
 export async function deleteExpense(formData: FormData) {
   const user = await requireUser();
   const id = String(formData.get("id") ?? "");
