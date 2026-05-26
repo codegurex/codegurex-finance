@@ -58,6 +58,17 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+enum PayFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum JobStatus {
+  ACTIVE
+  ENDED
+}
+
 model User {
   id        String   @id @db.Uuid
   email     String   @unique
@@ -72,6 +83,7 @@ model User {
   projects      Project[]
   invoices      Invoice[]
   subscriptions Subscription[]
+  jobs          Job[]
 
   @@map("users")
 }
@@ -167,6 +179,28 @@ model Project {
   @@index([ownerId])
   @@index([clientId])
   @@map("projects")
+}
+
+model Job {
+  id          String       @id @default(cuid())
+  employer    String
+  position    String?
+  salary      Decimal      @db.Decimal(12, 2)
+  frequency   PayFrequency @default(MONTHLY)
+  nextPayDate DateTime     @map("next_pay_date")
+  status      JobStatus    @default(ACTIVE)
+  startDate   DateTime?    @map("start_date")
+  endDate     DateTime?    @map("end_date")
+  notes       String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  ownerId String @map("owner_id") @db.Uuid
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([nextPayDate])
+  @@map("jobs")
 }
 
 model Subscription {

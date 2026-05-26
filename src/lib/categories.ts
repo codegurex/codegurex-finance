@@ -1,4 +1,5 @@
 export const INCOME_CATEGORIES = [
+  "Empleo / Trabajo",
   "Desarrollo web",
   "Ciberseguridad",
   "Mantenimiento",

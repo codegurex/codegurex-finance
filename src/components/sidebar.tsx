@@ -10,6 +10,7 @@ import {
   FolderKanban,
   FileText,
   Repeat,
+  Briefcase,
   LogOut,
   TerminalSquare,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { useRouter } from "next/navigation";
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/ingresos", label: "Ingresos", icon: TrendingUp },
+  { href: "/empleos", label: "Empleos", icon: Briefcase },
   { href: "/gastos", label: "Gastos", icon: TrendingDown },
   { href: "/suscripciones", label: "Suscripciones", icon: Repeat },
   { href: "/clientes", label: "Clientes", icon: Users },
