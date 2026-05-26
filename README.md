@@ -1,104 +1,178 @@
 # Codegurex Finance
 
-Sistema financiero interno de Codegurex. MVP Fase 1: autenticación, dashboard, ingresos, gastos y clientes.
+> Sistema financiero personal y de agencia: ingresos, gastos, suscripciones, empleos, clientes y proyectos en un solo dashboard.
 
-## Stack
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3ecf8e?logo=supabase)](https://supabase.com)
+[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)](https://www.prisma.io)
 
-- **Next.js 16** (App Router) + TypeScript
-- **Tailwind v4** + componentes UI propios (shadcn-style)
-- **Supabase** (Auth + Postgres)
-- **Prisma 7** ORM
-- **lucide-react** iconos
+![Dashboard](docs/screenshots/dashboard.png)
 
-## Setup
+## Demo
 
-### 1. Crea el proyecto en Supabase
+**Live:** _añade aquí la URL de tu deploy en Vercel cuando esté lista_
 
-1. Entra a [supabase.com](https://supabase.com) y crea un nuevo proyecto.
-2. Anota la contraseña de la base de datos.
-3. Espera a que el proyecto esté listo (1-2 min).
+Cada usuario crea su propia cuenta — los datos se aíslan a nivel de fila por `ownerId`, así que cada quien ve solo lo suyo.
 
-### 2. Llena `.env`
-
-Copia los valores de Supabase a `.env` (ya existe en la raíz, no se commitea):
-
-- `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`: en **Settings → API**.
-- `DATABASE_URL`: en **Project Settings → Database → Connection string → URI** (usa la conexión directa, puerto 5432).
-
-### 3. Aplica el esquema
-
-```bash
-npm run db:push
+```
+1. Abre la URL
+2. "Crear cuenta" con tu correo
+3. Confirma desde el email (o desactiva confirmación en Supabase para demo)
+4. Listo
 ```
 
-Esto crea las tablas `users`, `clients`, `income`, `expenses`, `projects`, `invoices` en Supabase.
+---
 
-> Nota: el `id` del modelo `User` coincide con `auth.users.id` de Supabase. Para que se inserte automáticamente al registrar un usuario, en el SQL Editor de Supabase ejecuta:
->
-> ```sql
-> create or replace function public.handle_new_user()
-> returns trigger language plpgsql security definer as $$
-> begin
->   insert into public.users (id, email)
->   values (new.id, new.email);
->   return new;
-> end;
-> $$;
->
-> create trigger on_auth_user_created
->   after insert on auth.users
->   for each row execute function public.handle_new_user();
-> ```
+## Por qué este proyecto
 
-### 4. Arranca el servidor
+Construido para administrar la operación financiera real de Codegurex (agencia de desarrollo y ciberseguridad en Ecuador). Resuelve preguntas concretas que un freelancer/agencia se hace todos los días:
 
-```bash
-npm run dev
-```
+- ¿Cuánto llevo facturado este mes vs el anterior?
+- ¿En qué se me está yendo la plata? ¿Cuánto pago en suscripciones que ni uso?
+- ¿Cuándo cobro la próxima nómina y cuánto debería ser?
+- ¿Qué clientes son los más rentables?
 
-Abre [http://localhost:3000](http://localhost:3000). Te redirige a `/login`. Crea una cuenta y entra.
+## Funciones
 
-## Scripts
+| Módulo | Qué hace |
+|---|---|
+| **Dashboard** | KPIs acumulados (ingresos, gastos, balance, burn mensual) · gráfico ingresos vs gastos últimos 6 meses · donut de gastos por categoría · alerta de suscripciones por vencer en los próximos 14 días |
+| **Ingresos** | CRUD con cliente, categoría, método de pago, fecha, notas |
+| **Gastos** | CRUD con descripción, proveedor, categoría, método |
+| **Empleos** | Sueldos recurrentes (semanal/quincenal/mensual). Botón "Cobrar" crea el ingreso automáticamente y avanza la fecha del próximo pago |
+| **Suscripciones** | Tracking de gastos recurrentes con rollover automático y burn rate normalizado |
+| **Clientes** | CRM básico con estados (activo / inactivo / archivado) |
+| **Proyectos** | Kanban-light con estado inline, progreso visual y pipeline value |
 
-- `npm run dev` — servidor de desarrollo
-- `npm run build` — build de producción
-- `npm run db:push` — sincroniza el schema con Postgres (sin migración)
-- `npm run db:migrate` — crea y aplica una migración
-- `npm run db:studio` — abre Prisma Studio
-- `npm run db:generate` — regenera el cliente Prisma
+## Screenshots
+
+| Dashboard | Ingresos |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Ingresos](docs/screenshots/ingresos.png) |
+
+| Empleos | Suscripciones |
+|---|---|
+| ![Empleos](docs/screenshots/empleos.png) | ![Suscripciones](docs/screenshots/suscripciones.png) |
+
+| Proyectos | Login |
+|---|---|
+| ![Proyectos](docs/screenshots/proyectos.png) | ![Login](docs/screenshots/login.png) |
+
+## Stack y por qué
+
+**Frontend**
+- **Next.js 16** (App Router) — Server Components para reducir JS en cliente; Server Actions para mutaciones sin escribir endpoints
+- **TypeScript estricto** — refactors seguros sobre 6 modelos relacionados
+- **Tailwind v4** + design system propio (CSS variables) — paleta de marca consistente entre componentes
+- **Shadcn-style UI** hecha a mano — sin dependencia de una librería completa
+- **Recharts** — bar y donut con tooltips formateados
+
+**Backend**
+- **Supabase Auth** — magic links + password, integrado con middleware de Next
+- **Supabase Postgres** — con trigger SQL que copia `auth.users` → `public.users` para FKs limpias
+- **Prisma 7** con driver adapter `@prisma/adapter-pg` — engine "client" + transactions
+
+**Decisiones técnicas notables**
+
+- `requireUser()` cacheado por request con `React.cache()` → layout + page no llaman 2× a Supabase Auth
+- `revalidatePath("/", "layout")` en cada server action → la siguiente navegación trae data fresca
+- `staleTimes.dynamic: 0` en `next.config.ts` → el router cache no conserva páginas mutables
+- Loading skeletons en `(app)/loading.tsx` → UX percibida más rápida durante el primer compile o queries lentas
+- Status select de proyectos como Client Component aislado → evita pasar funciones desde Server Components
+- Ownership validation en todas las actions (`where: { id, ownerId: user.id }`) — no se puede borrar ni editar lo ajeno
 
 ## Estructura
 
 ```
 src/
 ├── app/
-│   ├── (app)/              # rutas protegidas (sidebar + auth check)
+│   ├── (app)/                    # rutas protegidas (sidebar + auth)
 │   │   ├── layout.tsx
-│   │   ├── page.tsx        # /  → dashboard
+│   │   ├── loading.tsx           # skeleton compartido
+│   │   ├── error.tsx             # error boundary
+│   │   ├── page.tsx              # dashboard
 │   │   ├── ingresos/
 │   │   ├── gastos/
-│   │   └── clientes/
-│   ├── auth/callback/      # callback de Supabase OAuth/email
-│   ├── login/              # página pública de login
+│   │   ├── empleos/
+│   │   ├── suscripciones/
+│   │   ├── clientes/
+│   │   └── proyectos/
+│   ├── auth/callback/            # callback de Supabase
+│   ├── login/                    # página pública
 │   ├── layout.tsx
-│   └── globals.css
+│   └── globals.css               # design tokens
 ├── components/
-│   ├── ui/                 # button, card, input
+│   ├── ui/                       # button, card, input, select, skeleton
+│   ├── charts/                   # recharts wrappers
 │   ├── sidebar.tsx
-│   └── stat-card.tsx
+│   ├── stat-card.tsx
+│   └── renewal-alert.tsx
 ├── lib/
-│   ├── supabase/           # clients browser/server/middleware
-│   ├── prisma.ts
-│   ├── utils.ts
-│   └── format.ts
-├── generated/prisma/       # cliente Prisma (gitignored)
-└── middleware.ts           # protección de rutas
+│   ├── supabase/                 # browser, server, middleware
+│   ├── prisma.ts                 # adapter pg + singleton
+│   ├── auth.ts                   # requireUser cacheado
+│   ├── format.ts
+│   ├── categories.ts
+│   ├── subscriptions.ts
+│   ├── jobs.ts
+│   ├── projects.ts
+│   └── utils.ts
+└── middleware.ts                 # protección de rutas
+
 prisma/
-└── schema.prisma
+├── schema.prisma                 # 7 modelos + 6 enums
+└── sql/auth-trigger.sql          # trigger auth.users → public.users
 ```
+
+## Setup local
+
+```bash
+git clone https://github.com/codegurex/codegurex-finance.git
+cd codegurex-finance
+npm install
+cp .env.example .env             # llena con tus credenciales de Supabase
+npm run db:push                  # sincroniza schema
+npm run dev
+```
+
+Luego en el SQL Editor de Supabase ejecuta el contenido de `prisma/sql/auth-trigger.sql` para que `auth.users` se replique a `public.users` al hacer signup.
+
+## Scripts
+
+| Comando | Acción |
+|---|---|
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Build de producción |
+| `npm run db:push` | Sincroniza schema sin migración |
+| `npm run db:migrate` | Crea y aplica una migración |
+| `npm run db:studio` | Abre Prisma Studio |
+| `npm run db:generate` | Regenera cliente Prisma |
+
+## Deploy
+
+Configurado para Vercel sin tocar nada. Variables de entorno necesarias en el dashboard:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `DATABASE_URL` (usa el **Transaction Pooler** de Supabase en puerto `6543` con `?pgbouncer=true&connection_limit=1`)
 
 ## Roadmap
 
-- **Fase 1 (actual)** — auth, dashboard, CRUD ingresos/gastos/clientes
-- **Fase 2** — facturas PDF, reportes, exportaciones, gráficos
-- **Fase 3** — roles, automatizaciones, IA, integraciones (Stripe, Telegram)
+- [ ] Facturación electrónica (SRI Ecuador)
+- [ ] Edición inline de ingresos / gastos / clientes
+- [ ] Exportación CSV / PDF
+- [ ] PWA instalable
+- [ ] Modo dark con toggle
+- [ ] Roles (admin / contador / empleado)
+- [ ] Integración con Stripe para cobros
+
+## Autor
+
+**Codegurex** — [@codegurex](https://github.com/codegurex)
+Cybersecurity Analyst & Web Developer · Ecuador
+
+---
+
+_Si este proyecto te sirvió de inspiración o referencia, una ⭐ en el repo es bienvenida._
