@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -80,7 +81,7 @@ export function Sidebar({ email }: { email?: string | null }) {
             <span className="text-primary">/&gt;</span>
           </span>
         </div>
-        <div className="w-9" /> {/* spacer para centrar el logo */}
+        <ThemeToggle compact />
       </header>
 
       {/* Backdrop mobile */}
@@ -170,6 +171,7 @@ export function Sidebar({ email }: { email?: string | null }) {
               {email}
             </div>
           )}
+          <ThemeToggle />
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
