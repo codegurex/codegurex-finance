@@ -69,6 +69,12 @@ enum JobStatus {
   ENDED
 }
 
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id        String   @id @db.Uuid
   email     String   @unique
@@ -84,6 +90,7 @@ model User {
   invoices      Invoice[]
   subscriptions Subscription[]
   jobs          Job[]
+  goals         Goal[]
 
   @@map("users")
 }
@@ -179,6 +186,24 @@ model Project {
   @@index([ownerId])
   @@index([clientId])
   @@map("projects")
+}
+
+model Goal {
+  id            String     @id @default(cuid())
+  name          String
+  targetAmount  Decimal    @db.Decimal(12, 2) @map("target_amount")
+  currentAmount Decimal    @default(0) @db.Decimal(12, 2) @map("current_amount")
+  deadline      DateTime?
+  status        GoalStatus @default(ACTIVE)
+  notes         String?
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  ownerId String @map("owner_id") @db.Uuid
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@map("goals")
 }
 
 model Job {
